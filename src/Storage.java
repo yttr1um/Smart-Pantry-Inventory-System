@@ -1,14 +1,13 @@
-import java.io.*;                // For files
-import java.time.LocalDate;      // For date parse/format
-import java.util.ArrayList;      // For lists
-import java.util.UUID;           // For simple ids
+import java.io.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
-// Simple text-file storage for users, items, and shopping lists.
 public class Storage {
-    // File names used by the program.
-    public static String USERS_FILE = "users.txt";               // Users data
-    public static String ITEMS_FILE = "items_.txt";               // Items data
-    public static String SHOPPING_FILE = "shopping_lists.txt";   // Shopping lists data
+
+    // file names
+    public static String USERS_FILE = "users.txt";
+    public static String ITEMS_FILE = "items_.txt";
+    public static String SHOPPING_FILE = "shopping_lists.txt";
 
     // Ensure all needed files exist.
     public static void ensureFiles() {
@@ -29,8 +28,7 @@ public class Storage {
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (line.length() == 0) continue;
-                // Format: userId,name,email,phone,password
+                if (line.isEmpty()) continue;
                 String[] parts = line.split(",", -1);
                 if (parts.length >= 5) {
                     Housekeeper u = new Housekeeper(parts[0], parts[1], parts[2], parts[3], parts[4]);
@@ -39,7 +37,7 @@ public class Storage {
             }
             br.close();
         } catch (IOException e) {
-            // Ignore read errors here for simplicity.
+            // Ignore read errors here for simplicity. <--- ??????????
         }
         return list;
     }
@@ -47,10 +45,10 @@ public class Storage {
     // Write all users to users.txt (overwrites file).
     public static void writeUsers(ArrayList<Housekeeper> users) {
         try {
+            // TODO: CHANGE buffered writer to FileWriter or PrintWriter
             BufferedWriter bw = new BufferedWriter(new FileWriter(USERS_FILE));
-            for (int i = 0; i < users.size(); i++) {
-                Housekeeper u = users.get(i);
-                String row = u.getId()+","+u.getName()+","+u.getEmail()+","+u.getPhone()+","+u.getPassword();
+            for (Housekeeper u : users) {
+                String row = u.getId() + "," + u.getName() + "," + u.getEmail() + "," + u.getPhone() + "," + u.getPassword();
                 bw.write(row);
                 bw.newLine();
             }
@@ -60,7 +58,6 @@ public class Storage {
         }
     }
 
-    // Read all items from items.txt into a list.
     public static ArrayList<PantryItem> readItems() {
         ArrayList<PantryItem> items = new ArrayList<PantryItem>();
         try {
@@ -68,7 +65,7 @@ public class Storage {
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (line.length() == 0) continue;
+                if (line.isEmpty()) continue;
                 // Format: itemId,name,category,quantity,unit,threshold,expiry
                 String[] p = line.split(",", -1);
                 if (p.length >= 7) {
@@ -100,14 +97,15 @@ public class Storage {
     public static void writeItems(ArrayList<PantryItem> items) {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(ITEMS_FILE));
-            for (int i = 0; i < items.size(); i++) {
-                PantryItem it = items.get(i);
+            for (PantryItem it : items) {
                 String exp = "";
                 if (it instanceof PerishableItem) {
                     PerishableItem p = (PerishableItem) it;
-                    if (p.getExpiryDate() != null) { exp = p.getExpiryDate().toString(); }
+                    if (p.getExpiryDate() != null) {
+                        exp = p.getExpiryDate().toString();
+                    }
                 }
-                String row = it.getId()+","+it.getName()+","+it.getCategory()+","+it.getQuantity()+","+it.getUnit()+","+it.getThreshold()+","+exp;
+                String row = it.getId() + "," + it.getName() + "," + it.getCategory() + "," + it.getQuantity() + "," + it.getUnit() + "," + it.getThreshold() + "," + exp;
                 bw.write(row);
                 bw.newLine();
             }
@@ -126,7 +124,7 @@ public class Storage {
             ShoppingList current = null; // Keep track of the list we are filling
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (line.length() == 0) continue;
+                if (line.isEmpty()) continue;
                 // Lines look like: LIST|listId|yyyy-MM-dd  OR  ENTRY|name|qty|unit|status
                 String[] parts = line.split(",", -1);
                 if (parts[0].equals("LIST")) {
@@ -157,14 +155,12 @@ public class Storage {
     public static void writeShoppingLists(ArrayList<ShoppingList> lists) {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(SHOPPING_FILE));
-            for (int i = 0; i < lists.size(); i++) {
-                ShoppingList l = lists.get(i);
-                bw.write("LIST|"+l.getId()+"|"+l.getDateCreated());
+            for (ShoppingList l : lists) {
+                bw.write("LIST|" + l.getId() + "|" + l.getDateCreated());
                 bw.newLine();
                 ArrayList<ShoppingList.Entry> es = l.getEntries();
-                for (int j = 0; j < es.size(); j++) {
-                    ShoppingList.Entry e = es.get(j);
-                    bw.write("ENTRY|"+e.itemName+"|"+e.quantity+"|"+e.unit+"|"+e.status);
+                for (ShoppingList.Entry e : es) {
+                    bw.write("ENTRY|" + e.itemName + "|" + e.quantity + "|" + e.unit + "|" + e.status);
                     bw.newLine();
                 }
             }
