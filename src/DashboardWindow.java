@@ -1,11 +1,10 @@
-import javax.swing.*;                       // GUI components
-import javax.swing.table.DefaultTableModel; // Table model for displaying rows
-import java.awt.*;                          // Layouts
-import java.awt.event.*;                    // Events
-import java.time.LocalDate;                 // Dates
-import java.util.ArrayList;                 // Lists
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
-// The main dashboard that shows items and allows actions.
 public class DashboardWindow extends JFrame {
     private Housekeeper currentUser;    // Logged-in user
     private JTable table;               // Table UI
@@ -13,12 +12,12 @@ public class DashboardWindow extends JFrame {
     private JTextField searchField;     // Search text field
 
     public DashboardWindow(Housekeeper user) {
-        super("Smart Pantry – " + user.getName()); // Title includes user's name
+        super("Smart Pantry – " + user.getName());
         this.currentUser = user;         // Save user
         buildUI();                       // Build UI
-        setSize(1000, 500);              // Set window size
+        setSize(1000, 500);
         setLocationRelativeTo(null);     // Center on screen
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close app on X
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         refreshAllItems();               // Load items into table
     }
 
@@ -39,7 +38,9 @@ public class DashboardWindow extends JFrame {
 
         String[] cols = {"ID","Name","Category","Quantity","Unit","Threshold","Expiry"};
         model = new DefaultTableModel(cols, 0) {
-            public boolean isCellEditable(int r, int c) { return false; }
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         table = new JTable(model);
 
@@ -63,16 +64,65 @@ public class DashboardWindow extends JFrame {
         add(bottom, BorderLayout.SOUTH);
 
         // Button actions using anonymous classes (beginner-friendly)
-        btnSearch.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) { doSearch(); } });
-        btnAll.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) { refreshAllItems(); } });
-        btnExpiring.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) { showExpiring(); } });
-        btnLow.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) { showLowStock(); } });
-        btnAdd.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) { addItem(); } });
-        btnDelete.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) { deleteSelected(); } });
-        btnConsume.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) { consumeSelected(); } });
-        btnRestock.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) { restockSelected(); } });
-        btnGenList.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) { generateShoppingList(); } });
-        btnMarkPurchased.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) { markPurchasedByName(); } });
+        btnSearch.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                doSearch();
+            }
+        });
+
+        btnAll.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                refreshAllItems();
+            }
+        });
+
+        btnExpiring.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showExpiring();
+            }
+        });
+
+        btnLow.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showLowStock();
+            }
+        });
+
+        btnAdd.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addItem();
+            }
+        });
+
+        btnDelete.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                deleteSelected();
+            }
+        });
+
+        btnConsume.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                consumeSelected();
+            }
+        });
+
+        btnRestock.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                restockSelected();
+            }
+        });
+
+        btnGenList.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                generateShoppingList();
+            }
+        });
+
+        btnMarkPurchased.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                markPurchasedByName();
+            }
+        });
     }
 
     // Load all items and show them
@@ -84,14 +134,16 @@ public class DashboardWindow extends JFrame {
     // Display a list of items in the table
     private void showItems(ArrayList<PantryItem> items) {
         model.setRowCount(0);
-        for (int i = 0; i < items.size(); i++) {
-            PantryItem it = items.get(i);
+        for (PantryItem it : items) {
             String exp = "";
             if (it instanceof PerishableItem) {
                 PerishableItem p = (PerishableItem) it;
-                if (p.getExpiryDate() != null) { exp = p.getExpiryDate().toString(); }
+                if (p.getExpiryDate() != null) {
+                    exp = p.getExpiryDate().toString();
+                }
             }
-            Object[] row = new Object[] { it.getId(), it.getName(), it.getCategory(), it.getQuantity(), it.getUnit(), it.getThreshold(), exp };
+            Object[] row = new Object[]{it.getId(), it.getName(), it.getCategory(), it.getQuantity(),
+                    it.getUnit(), it.getThreshold(), exp};
             model.addRow(row);
         }
     }
@@ -101,11 +153,12 @@ public class DashboardWindow extends JFrame {
         String q = searchField.getText().trim().toLowerCase();
         ArrayList<PantryItem> items = Storage.readItems();
         ArrayList<PantryItem> results = new ArrayList<PantryItem>();
-        for (int i = 0; i < items.size(); i++) {
-            PantryItem it = items.get(i);
+        for (PantryItem it : items) {
             String n = it.getName().toLowerCase();
             String c = it.getCategory().toLowerCase();
-            if (n.indexOf(q) >= 0 || c.indexOf(q) >= 0) { results.add(it); }
+            if (n.contains(q) || c.contains(q)) {
+                results.add(it);
+            }
         }
         showItems(results);
     }
@@ -114,11 +167,12 @@ public class DashboardWindow extends JFrame {
     private void showExpiring() {
         ArrayList<PantryItem> items = Storage.readItems();
         ArrayList<PantryItem> results = new ArrayList<PantryItem>();
-        for (int i = 0; i < items.size(); i++) {
-            PantryItem it = items.get(i);
+        for (PantryItem it : items) {
             if (it instanceof PerishableItem) {
                 PerishableItem p = (PerishableItem) it;
-                if (p.isAboutToExpire(15)) { results.add(it); }
+                if (p.isAboutToExpire(15)) {
+                    results.add(it);
+                }
             }
         }
         showItems(results);
@@ -128,9 +182,10 @@ public class DashboardWindow extends JFrame {
     private void showLowStock() {
         ArrayList<PantryItem> items = Storage.readItems();
         ArrayList<PantryItem> results = new ArrayList<PantryItem>();
-        for (int i = 0; i < items.size(); i++) {
-            PantryItem it = items.get(i);
-            if (it.isLowStock()) { results.add(it); }
+        for (PantryItem it : items) {
+            if (it.isLowStock()) {
+                results.add(it);
+            }
         }
         showItems(results);
     }
@@ -138,7 +193,7 @@ public class DashboardWindow extends JFrame {
     // Add a new item using simple popups
     private void addItem() {
         String name = JOptionPane.showInputDialog(this, "Item name:");
-        if (name == null || name.trim().length() == 0) return;
+        if (name == null || name.trim().isEmpty()) return;
         String cat = JOptionPane.showInputDialog(this, "Category:");
         if (cat == null) cat = "";
         String unit = JOptionPane.showInputDialog(this, "Unit (e.g., pcs, kg):");
@@ -149,7 +204,7 @@ public class DashboardWindow extends JFrame {
 
         ArrayList<PantryItem> items = Storage.readItems();
         String id = Storage.makeId("I");
-        if (exp != null && exp.trim().length() > 0) {
+        if (exp != null && !exp.trim().isEmpty()) {
             LocalDate d = LocalDate.parse(exp.trim());
             PerishableItem it = new PerishableItem(id, name, cat, qty, unit, th, d);
             items.add(it);
@@ -180,9 +235,11 @@ public class DashboardWindow extends JFrame {
         String id = (String) model.getValueAt(row, 0);
         int amt = askInt("Consume amount:", 1);
         ArrayList<PantryItem> items = Storage.readItems();
-        for (int i = 0; i < items.size(); i++) {
-            PantryItem it = items.get(i);
-            if (it.getId().equals(id)) { it.consume(amt); break; }
+        for (PantryItem it : items) {
+            if (it.getId().equals(id)) {
+                it.consume(amt);
+                break;
+            }
         }
         Storage.writeItems(items);
         refreshAllItems();
@@ -194,9 +251,11 @@ public class DashboardWindow extends JFrame {
         String id = (String) model.getValueAt(row, 0);
         int amt = askInt("Restock amount:", 1);
         ArrayList<PantryItem> items = Storage.readItems();
-        for (int i = 0; i < items.size(); i++) {
-            PantryItem it = items.get(i);
-            if (it.getId().equals(id)) { it.restock(amt); break; }
+        for (PantryItem item : items) {
+            if (item.getId().equals(id)) {
+                item.restock(amt);
+                break;
+            }
         }
         Storage.writeItems(items);
         refreshAllItems();
@@ -208,12 +267,11 @@ public class DashboardWindow extends JFrame {
         ArrayList<ShoppingList> lists = Storage.readShoppingLists();
         String listId = Storage.makeId("L");
         ShoppingList list = new ShoppingList(listId, LocalDate.now());
-        for (int i = 0; i < items.size(); i++) {
-            PantryItem it = items.get(i);
-            if (it.isLowStock()) {
-                int needed = it.getThreshold() - it.getQuantity();
+        for (PantryItem item : items) {
+            if (item.isLowStock()) {
+                int needed = item.getThreshold() - item.getQuantity();
                 if (needed > 0) {
-                    ShoppingList.Entry e = new ShoppingList.Entry(it.getName(), needed, it.getUnit());
+                    ShoppingList.Entry e = new ShoppingList.Entry(item.getName(), needed, item.getUnit());
                     list.getEntries().add(e);
                 }
             }
@@ -226,19 +284,21 @@ public class DashboardWindow extends JFrame {
     // Mark an item as purchased (by name) and restock pantry
     private void markPurchasedByName() {
         String name = JOptionPane.showInputDialog(this, "Enter item name purchased:");
-        if (name == null || name.trim().length() == 0) return;
+        if (name == null || name.trim().isEmpty()) return;
         String qtyStr = JOptionPane.showInputDialog(this, "Enter quantity purchased:");
         int qty = 0; try { qty = Integer.parseInt(qtyStr); } catch (Exception e) { qty = 0; }
         if (qty <= 0) { JOptionPane.showMessageDialog(this, "Quantity must be > 0"); return; }
 
         // Mark entry purchased in latest shopping list, if present
         ArrayList<ShoppingList> lists = Storage.readShoppingLists();
-        if (lists.size() > 0) {
+        if (!lists.isEmpty()) {
             ShoppingList last = lists.get(lists.size() - 1);
             ArrayList<ShoppingList.Entry> es = last.getEntries();
-            for (int i = 0; i < es.size(); i++) {
-                ShoppingList.Entry e = es.get(i);
-                if (e.itemName.equalsIgnoreCase(name)) { e.status = "PURCHASED"; break; }
+            for (ShoppingList.Entry e : es) {
+                if (e.itemName.equalsIgnoreCase(name)) {
+                    e.status = "PURCHASED";
+                    break;
+                }
             }
             Storage.writeShoppingLists(lists);
         }

@@ -1,7 +1,6 @@
-import java.time.LocalDate; // Import LocalDate for dates
+import java.time.LocalDate;
 
 // This interface says that an object has an expiry date.
 public interface Expirable {
-    // Return the expiry date of the object.
     LocalDate getExpiryDate();
 }

@@ -3,6 +3,7 @@ import javax.swing.SwingUtilities; // For starting GUI on the Event Dispatch Thr
 // Program entry point that starts the app.
 public class SmartPantry {
     public static void main(String[] args) {
+        // TODO: ????
         // Start Swing on the correct thread.
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {

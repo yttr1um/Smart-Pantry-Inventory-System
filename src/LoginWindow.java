@@ -1,18 +1,17 @@
-import javax.swing.*;            // For Swing GUI
-import java.awt.*;               // For layouts
-import java.awt.event.*;         // For events
-import java.util.ArrayList;      // For lists
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
 
-// The login window lets a user log in or open registration.
 public class LoginWindow extends JFrame {
-    private JTextField emailField;        // Where the user types email
-    private JPasswordField passwordField; // Where the user types password
+    private JTextField emailField;
+    private JPasswordField passwordField;
 
     public LoginWindow() {
         super("Smart Pantry – Login");   // Set the window title
         Storage.ensureFiles();            // Make sure data files exist
         buildUI();                        // Build the form
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Quit app on close
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();                           // Size to fit contents
         setLocationRelativeTo(null);      // Center on screen
     }
@@ -34,12 +33,15 @@ public class LoginWindow extends JFrame {
 
         // When user clicks Login
         loginBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { doLogin(); }
+            public void actionPerformed(ActionEvent e) {
+                doLogin();
+            }
         });
 
         // When user clicks Register
         registerBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                //TODO: put comments and fix variable names
                 RegisterDialog dlg = new RegisterDialog(LoginWindow.this);
                 dlg.setVisible(true);
             }
@@ -52,14 +54,24 @@ public class LoginWindow extends JFrame {
         String pass = new String(passwordField.getPassword());
         ArrayList<Housekeeper> users = Storage.readUsers();
         Housekeeper found = null;
-        for (int i = 0; i < users.size(); i++) {
-            Housekeeper u = users.get(i);
-            if (u.getEmail().equalsIgnoreCase(email)) { found = u; break; }
+        for (Housekeeper u : users) {
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                found = u;
+                break;
+            }
         }
-        if (found == null) { JOptionPane.showMessageDialog(this, "User not found"); return; }
-        if (!found.getPassword().equals(pass)) { JOptionPane.showMessageDialog(this, "Wrong password"); return; }
+        if (found == null) {
+            JOptionPane.showMessageDialog(this, "User not found");
+            return;
+        }
+
+        if (!found.getPassword().equals(pass)) {
+            JOptionPane.showMessageDialog(this, "Wrong password");
+            return;
+        }
+
         DashboardWindow dash = new DashboardWindow(found);
         dash.setVisible(true);
-        dispose();
+        dispose(); // close current window
     }
 }

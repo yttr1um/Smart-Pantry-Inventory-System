@@ -1,10 +1,11 @@
-import javax.swing.*;            // For Swing GUI
-import java.awt.*;               // For layouts
-import java.awt.event.*;         // For events
-import java.util.ArrayList;      // For lists
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
 
-// A dialog that lets the user register a new account.
 public class RegisterDialog extends JDialog {
+
+    // ?? What does this do ??
     public RegisterDialog(JFrame owner) {
         super(owner, "Register", true); // Modal dialog with a title
         buildUI(owner);                  // Build form
@@ -21,28 +22,37 @@ public class RegisterDialog extends JDialog {
         JPasswordField pass = new JPasswordField(20);
         JButton ok = new JButton("Create");
 
-        p.add(new JLabel("Name:")); p.add(name);
-        p.add(new JLabel("Email:")); p.add(email);
-        p.add(new JLabel("Phone:")); p.add(phone);
-        p.add(new JLabel("Password:")); p.add(pass);
-        p.add(new JLabel("")); p.add(ok);
+        p.add(new JLabel("Name:"));
+        p.add(name);
+        p.add(new JLabel("Email:"));
+        p.add(email);
+        p.add(new JLabel("Phone:"));
+        p.add(phone);
+        p.add(new JLabel("Password:"));
+        p.add(pass);
+        p.add(new JLabel(""));
+        p.add(ok);
         setContentPane(p);
 
         // When Create is clicked, save a new user
         ok.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+
+                // TODO: Fix the variable names
                 String n = name.getText().trim();
                 String em = email.getText().trim();
                 String ph = phone.getText().trim();
                 String pw = new String(pass.getPassword());
-                if (n.length()==0 || em.length()==0 || pw.length()==0) {
-                    JOptionPane.showMessageDialog(RegisterDialog.this, "Please fill all required fields");
+                if (n.isEmpty() || em.isEmpty() || pw.isEmpty()) {
+                    JOptionPane.showMessageDialog(RegisterDialog.this,
+                            "Please fill all required fields");
                     return;
                 }
                 ArrayList<Housekeeper> users = Storage.readUsers();
-                for (int i = 0; i < users.size(); i++) {
-                    if (users.get(i).getEmail().equalsIgnoreCase(em)) {
-                        JOptionPane.showMessageDialog(RegisterDialog.this, "Email already registered");
+                for (Housekeeper user : users) {
+                    if (user.getEmail().equalsIgnoreCase(em)) {
+                        JOptionPane.showMessageDialog(RegisterDialog.this,
+                                "Email already registered");
                         return;
                     }
                 }
@@ -50,8 +60,9 @@ public class RegisterDialog extends JDialog {
                 Housekeeper u = new Housekeeper(id, n, em, ph, pw);
                 users.add(u);
                 Storage.writeUsers(users);
-                JOptionPane.showMessageDialog(RegisterDialog.this, "Registration successful. You can log in now.");
-                dispose();
+                JOptionPane.showMessageDialog(RegisterDialog.this,
+                        "Registration successful. You can log in now.");
+                dispose(); // close current window
             }
         });
     }
